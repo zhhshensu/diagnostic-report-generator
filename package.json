@@ -1,0 +1,13 @@
+{
+  "name": "diagnostic-report-generator",
+  "private": true,
+  "packageManager": "pnpm@9.12.1",
+  "scripts": {
+    "dev": "pnpm -F @diagnostic-report/frontend dev",
+    "build": "pnpm -F @diagnostic-report/frontend build && pnpm -F @diagnostic-report/mcp-server build",
+    "lint": "pnpm -F @diagnostic-report/frontend lint"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
