@@ -1,10 +1,10 @@
-import { useState, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useRef, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useProviderStore } from '@/stores/provider-store'
 import { useReportStore } from '@/stores/report-store'
 import { useUIStore } from '@/stores/ui-store'
 import { useT, useLanguage } from '@/lib/i18n/store'
-import { generateReport } from '@/lib/llm-client'
+import { generateReport, postProcessHtml } from '@/lib/llm-client'
 import { generateId } from '@/lib/utils'
 import type { ReportMode } from '@/lib/skill-prompt'
 import ProviderSelector from '@/components/ProviderSelector'
@@ -12,21 +12,15 @@ import StreamingOutput from '@/components/StreamingOutput'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
 import { Send, X, Sparkles, FileText, LayoutTemplate, Palette } from 'lucide-react'
-
-const SAMPLE_PROMPTS = [
-  'Generate a system health check report for a production server cluster with CPU, memory, disk, and network metrics',
-  'Create a database performance diagnostic report covering query latency, connection pool, cache hit ratio, and replication lag',
-  'Generate a network security audit report with firewall rules, intrusion detection, vulnerability scan, and compliance status',
-]
 
 export default function ReportEditor() {
   const navigate = useNavigate()
+  const { id: editId } = useParams<{ id: string }>()
   const t = useT()
   const language = useLanguage()
   const { providers, getActiveProvider } = useProviderStore()
-  const { addReport, updateReport } = useReportStore()
+  const { getReport, addReport, updateReport } = useReportStore()
   const { addToast } = useUIStore()
 
   const activeProvider = getActiveProvider()
@@ -37,6 +31,20 @@ export default function ReportEditor() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [streamedHtml, setStreamedHtml] = useState('')
   const abortRef = useRef<AbortController | null>(null)
+
+  // Edit mode: load existing report from IndexedDB to pre-fill prompt
+  useEffect(() => {
+    if (editId) {
+      const existing = getReport(editId)
+      if (existing) {
+        setPrompt(existing.prompt || '')
+        if (existing.mode) setReportMode(existing.mode)
+      } else {
+        addToast(t('detail.reportNotFound'), 'error')
+        navigate('/reports')
+      }
+    }
+  }, [editId])
 
   const selectedProvider = providers.find((p) => p.id === selectedProviderId)
 
@@ -55,6 +63,7 @@ export default function ReportEditor() {
       model,
       status: 'generating',
       mode: reportMode,
+      prompt, // Save original prompt for regenerate feature
     })
 
     setIsGenerating(true)
@@ -78,7 +87,9 @@ export default function ReportEditor() {
         extraBody,
       },
       (content) => {
-        setStreamedHtml(content)
+        // Process HTML for preview (strip ```html fences, replace CDN placeholders)
+        const processed = postProcessHtml(content, reportMode)
+        setStreamedHtml(processed)
         if (reportMode === 'fixed') {
           try {
             const parsed = JSON.parse(content)
@@ -89,8 +100,8 @@ export default function ReportEditor() {
           }
         } else {
           updateReport(reportId, {
-            html: content,
-            name: content.match(/<title>(.*?)<\/title>/)?.[1] || prompt.slice(0, 50),
+            html: processed,
+            name: processed.match(/<title>(.*?)<\/title>/)?.[1] || prompt.slice(0, 50),
           })
         }
       },
@@ -233,23 +244,6 @@ export default function ReportEditor() {
                 rows={10}
                 className="resize-none"
               />
-
-              <div>
-                <p className="text-xs text-muted-foreground mb-2">{t('editor.samplePrompts')}</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {SAMPLE_PROMPTS.map((s, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      className="text-xs bg-muted px-2.5 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground text-left transition-colors max-w-full truncate"
-                      onClick={() => setPrompt(s)}
-                      disabled={isGenerating}
-                    >
-                      {s.slice(0, 45)}...
-                    </button>
-                  ))}
-                </div>
-              </div>
             </CardContent>
           </Card>
 

@@ -5,6 +5,7 @@ import { useReportStore } from '@/stores/report-store'
 import { useUIStore } from '@/stores/ui-store'
 import { useT } from '@/lib/i18n/store'
 import type { ReportSchema } from '@/lib/report-schema'
+import { schemaToHtml } from '@/lib/report-schema'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import StatusBadge from '@/components/StatusBadge'
@@ -57,12 +58,14 @@ export default function ReportDetail() {
   }
 
   const handleCopyHtml = async () => {
-    await copyToClipboard(report.html)
+    const htmlContent = isFixedMode && reportSchema ? schemaToHtml(reportSchema) : report.html
+    await copyToClipboard(htmlContent)
     addToast(t('detail.htmlCopied'), 'success')
   }
 
   const handleDownloadHtml = () => {
-    const blob = new Blob([report.html], { type: 'text/html' })
+    const htmlContent = isFixedMode && reportSchema ? schemaToHtml(reportSchema) : report.html
+    const blob = new Blob([htmlContent], { type: 'text/html' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -118,7 +121,7 @@ export default function ReportDetail() {
             <Button variant="ghost" size="sm" onClick={() => setShowPdf(true)} className="gap-1.5">
               <FileText className="w-3.5 h-3.5" /> {t('detail.pdf')}
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/reports/new')} className="gap-1.5">
+            <Button variant="ghost" size="sm" onClick={() => navigate(`/reports/edit/${report.id}`)} className="gap-1.5">
               <RotateCcw className="w-3.5 h-3.5" /> {t('detail.regenerate')}
             </Button>
             <Button variant="ghost" size="sm" onClick={handleDelete} className="gap-1.5 text-destructive hover:text-destructive">
@@ -156,7 +159,7 @@ export default function ReportDetail() {
       </div>
 
       <ShareDialog open={showShare} onOpenChange={setShowShare} reportId={report.id} />
-      <ExportPdfDialog open={showPdf} onOpenChange={setShowPdf} reportId={report.id} />
+      <ExportPdfDialog open={showPdf} onOpenChange={setShowPdf} reportId={report.id} mode={report.mode} reportSchema={reportSchema} />
     </div>
   )
 }

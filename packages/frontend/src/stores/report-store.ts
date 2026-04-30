@@ -14,6 +14,8 @@ export interface Report {
   isStarred: boolean
   shareId?: string
   mode?: 'free' | 'fixed'
+  /** Original user prompt used to generate this report */
+  prompt?: string
 }
 
 interface ReportStore {

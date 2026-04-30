@@ -22,13 +22,19 @@ function postProcessHtml(raw: string, mode: ReportMode): string {
   if (mode === 'fixed') {
     return parseJsonFences(raw).json
   }
-  // Free mode: strip ```html fences and replace CDN placeholders
-  let clean = raw.replace(/^```html\s*/i, '').replace(/\s*```\s*$/i, '')
+  // Free mode: strip ```html fences (wherever they appear, not just at string boundaries)
+  let clean = raw
+    .replace(/^[\s\S]*?```html\s*/i, '')  // Remove everything before and including opening ```html
+    .replace(/```[\s\S]*$/i, '')            // Remove everything after and including closing ```
+    .trim()
   clean = clean.replace(/<!--CDN_FAVICON-->/g, CDN_FAVICON)
   clean = clean.replace(/<!--CDN_TAILWIND-->/g, CDN_TAILWIND)
   clean = clean.replace(/<!--CDN_CHARTJS-->/g, CDN_CHARTJS)
   return clean
 }
+
+/** Exported for use in streaming preview processing */
+export { postProcessHtml }
 
 export interface LLMRequest {
   provider: {

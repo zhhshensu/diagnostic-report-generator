@@ -56,6 +56,7 @@ export default function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/providers" element={<Providers />} />
             <Route path="/reports/new" element={<ReportEditor />} />
+            <Route path="/reports/edit/:id" element={<ReportEditor />} />
             <Route path="/reports/:id" element={<ReportDetail />} />
             <Route path="/reports" element={<ReportHistory />} />
             <Route path="/settings" element={<Settings />} />

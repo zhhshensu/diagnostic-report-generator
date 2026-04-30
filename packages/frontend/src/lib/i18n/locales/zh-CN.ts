@@ -115,10 +115,10 @@ export const zhCN = {
 
   // Export PDF Dialog
   'pdf.title': '导出 PDF',
-  'pdf.desc': '选择诊断报告的导出方式。',
-  'pdf.fullTitle': '完整报告（浏览器打印）',
-  'pdf.fullDesc': '使用浏览器打印功能生成包含所有图表和表格的完整 PDF。',
-  'pdf.fullAction': '打印完整报告',
+  'pdf.desc': '将诊断报告导出为 PDF 文件下载。',
+  'pdf.fullTitle': '完整报告（直接下载）',
+  'pdf.fullDesc': '生成包含所有图表和表格的完整 PDF 文件。',
+  'pdf.fullAction': '下载 PDF',
   'pdf.summaryTitle': '摘要（PDF 摘要）',
   'pdf.summaryDesc': '生成包含评分、风险等级和关键指标的简洁摘要 PDF。',
   'pdf.summaryAction': '生成摘要 PDF',

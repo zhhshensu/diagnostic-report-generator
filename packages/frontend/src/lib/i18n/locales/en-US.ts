@@ -115,10 +115,10 @@ export const enUS = {
 
   // Export PDF Dialog
   'pdf.title': 'Export PDF',
-  'pdf.desc': 'Choose export method for your diagnostic report.',
-  'pdf.fullTitle': 'Full Report (Browser Print)',
-  'pdf.fullDesc': 'Generate a complete PDF with all charts and tables using browser print.',
-  'pdf.fullAction': 'Print Full Report',
+  'pdf.desc': 'Download your diagnostic report as a PDF file.',
+  'pdf.fullTitle': 'Full Report (Direct Download)',
+  'pdf.fullDesc': 'Generate a complete PDF with all charts and tables.',
+  'pdf.fullAction': 'Download PDF',
   'pdf.summaryTitle': 'Summary (PDF Summary)',
   'pdf.summaryDesc': 'Generate a concise summary PDF with score, risk level, and key metrics.',
   'pdf.summaryAction': 'Generate Summary PDF',
